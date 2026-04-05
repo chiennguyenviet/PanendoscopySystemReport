@@ -361,7 +361,10 @@
             imageList.forEach((src, idx) => {
                 const wrapper = document.createElement('div');
                 wrapper.className = 'img-wrapper';
-                wrapper.innerHTML = `<img src="${src}" class="preview-img"><div class="del-img" onclick="removeImage(${idx})">✕</div>`;
+                // Thêm onclick và style cursor vào đây
+                wrapper.innerHTML = `
+            <img src="${src}" class="preview-img" onclick="openModal(this.src)" style="cursor:pointer;">
+            <div class="del-img" onclick="removeImage(${idx})">✕</div>`;
                 grid.appendChild(wrapper);
             });
         }
@@ -370,6 +373,7 @@
             imageList.splice(idx, 1);
             renderImages();
         }
+
 
         // --- GOOGLE SHEET SAVE ---
         async function saveToGoogleSheet() {
@@ -382,7 +386,7 @@
             const btn = event.target;
             btn.disabled = true;
             btn.innerHTML = "⌛ ĐANG LƯU...";
-                     
+
             try {
                 // 1. Tải ảnh lên Cloudinary
 
@@ -470,8 +474,9 @@
                 const formattedDate = dateParts.length === 3 ? `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}` : p.pDate;
 
                 // Sau đó dùng biến formattedDate để hiển thị
+                // Tìm đoạn này và sửa lại thẻ img như sau:
                 item.innerHTML = `
-    <img src="${thumb}" style="width:40px; height:40px; border-radius:4px; object-fit:cover; border:1px solid #ddd; flex-shrink:0;">
+    <img src="${thumb}" onclick="event.stopPropagation(); openModal(this.src)" style="width:40px; height:40px; border-radius:4px; cursor:pointer; object-fit:cover; border:1px solid #ddd; flex-shrink:0;">
     <div style="flex: 1; min-width: 0;">
         <b style="color:#1e40af; font-size:13px; text-transform:uppercase; display:block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 25px;">${p.pName}</b>
         <span style="font-size:11px; color:#64748b;">📅 ${formattedDate}</span>
@@ -517,6 +522,13 @@
 
                 listContainer.appendChild(item);
             });
+        }
+
+        // Hàm này bạn dán vào trong thẻ <script>
+        function openModal(src) {
+            if (!src || src.includes('via.placeholder')) return; // Không mở nếu là ảnh trống
+            document.getElementById("modalImg").src = src;
+            document.getElementById("imageModal").style.display = "flex";
         }
 
         function fillPatientData(p) {
@@ -705,5 +717,11 @@
 
         window.onload = () => { render(); fetchPatients(); };
     </script>
+
+    <div id="imageModal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.9); align-items:center; justify-content:center; cursor:zoom-out;" onclick="this.style.display='none'">
+        <span style="position:absolute; top:20px; right:35px; color:#f1f1f1; font-size:40px; font-weight:bold; cursor:pointer;">&times;</span>
+        <img id="modalImg" style="margin:auto; display:block; max-width:90%; max-height:90%; border:3px solid white; border-radius:4px; box-shadow: 0 0 20px rgba(0,0,0,0.5);">
+    </div>
+
 </body>
 </html>

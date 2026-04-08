@@ -8,6 +8,16 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     <style>
+        .header-fixed {
+            position: sticky;
+            top: 0; /* Dính sát mép trên */
+            background: white; /* Phải có nền để không bị lộ chữ phía dưới khi cuộn chồng lên */
+            z-index: 100; /* Đảm bảo luôn nằm trên các phần tử khác */
+            padding: 15px 0;
+            border-bottom: 2px solid #1e40af; /* Đường kẻ trang trí */
+            margin-bottom: 20px;
+        }
+
         /* Sidebar chính */
         #sidebar {
             background: #ffffff;
@@ -458,12 +468,15 @@
         </div>
     </div>
 
+
     <div id="main-content">
-        <div style="padding: 35px 0 25px 0; text-align: center;">
-            <h1 style="color: #1e40af; font-size: 32px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">
+        <div class="header-fixed" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 80px; background: white; position: sticky; top: 0; z-index: 100;">
+            <h1 style="color: #1e40af; font-size: 32px; font-weight: 800; text-transform: uppercase; margin: 0;">
                 PanEndoscopy Reporting System
             </h1>
-            <div style="height: 5px; width: 120px; background: #3b82f6; margin: 0 auto; border-radius: 2px;"></div>
+        </div>
+
+        <div class="form-content" style="padding: 20px;">
         </div>
 
         <div id="checklist-render"></div>

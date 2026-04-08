@@ -1064,6 +1064,19 @@
             }
         }
 
+        let touchStart = 0;
+
+        window.addEventListener('touchstart', (e) => {
+            touchStart = e.touches[0].pageY;
+        }, { passive: true });
+
+        window.addEventListener('touchmove', (e) => {
+            const touchMove = e.touches[0].pageY;
+            // Nếu đang ở đỉnh trang và kéo xuống hơn 150px
+            if (window.scrollY === 0 && touchMove - touchStart > 150) {
+                location.reload();
+            }
+        }, { passive: true });
 
         window.onload = () => { render(); fetchPatients(); };
     </script>

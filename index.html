@@ -8,7 +8,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     <style>
-
+        body {
+            /* Cho phép kéo quá đà để kích hoạt tải lại trang của trình duyệt */
+            overscroll-behavior-y: auto;
+        }
         #btnRefresh:hover {
             color: #3b82f6;
             transform: scale(1.1);
@@ -500,10 +503,10 @@
                 wrapper.className = 'img-wrapper';
                 // Thêm onclick và style cursor vào đây
                 wrapper.innerHTML = `
-    <img src="${src}" class="preview-img" 
-         onclick="openModal(this.src)" 
-         style="cursor:pointer; width:100%; height:100%; object-fit:contain;">
-    <div class="del-img" onclick="removeImage(${idx})">✕</div>`;
+        <img src="${src}" class="preview-img"
+             onclick="openModal(this.src)"
+             style="cursor:pointer; width:100%; height:100%; object-fit:contain;">
+        <div class="del-img" onclick="removeImage(${idx})">✕</div>`;
                 grid.appendChild(wrapper);
             });
         }
@@ -615,14 +618,14 @@
                 // Sau đó dùng biến formattedDate để hiển thị
                 // Tìm đoạn này và sửa lại thẻ img như sau:
                 item.innerHTML = `
-    <img src="${thumb}" 
-         onclick="event.stopPropagation(); openModal(this.src);" 
-         style="width:40px; height:40px; border-radius:4px; object-fit:cover; border:1px solid #ddd; flex-shrink:0; cursor:pointer;">
-    <div style="flex: 1; min-width: 0;">
-        <b style="color:#1e40af; font-size:13px; text-transform:uppercase; display:block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 25px;">${p.pName}</b>
-        <span style="font-size:11px; color:#64748b;">📅 ${formattedDate}</span>
-    </div>
-    <div class="btn-delete-patient" title="Xóa hồ sơ">✕</div>
+        <img src="${thumb}"
+             onclick="event.stopPropagation(); openModal(this.src);"
+             style="width:40px; height:40px; border-radius:4px; object-fit:cover; border:1px solid #ddd; flex-shrink:0; cursor:pointer;">
+        <div style="flex: 1; min-width: 0;">
+            <b style="color:#1e40af; font-size:13px; text-transform:uppercase; display:block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 25px;">${p.pName}</b>
+            <span style="font-size:11px; color:#64748b;">📅 ${formattedDate}</span>
+        </div>
+        <div class="btn-delete-patient" title="Xóa hồ sơ">✕</div>
 `;
 
                 // Click vào hàng thì đổ dữ liệu (trừ khi click trúng nút xóa)
@@ -827,7 +830,7 @@
                 ? `B&#7845;m sinh thi&#7871;t: ${biopsy}.`
                 : `B&#7845;m sinh thi&#7871;t: ..........................................`;
 
-           
+
             const imgHtml = imageList.length > 0
                 ? `<img src="${imageList[0]}" style="width:100%;height:260px;object-fit:contain;display:block;">`
                 : `<div style="width:100%;height:260px;border:1px dashed #aaa;display:table-cell;vertical-align:middle;text-align:center;color:#aaa;font-style:italic;">Ch&#432;a c&oacute; &#7843;nh n&#7897;i soi</div>`;
@@ -843,139 +846,139 @@
 <meta charset="utf-8">
 <title>Bao cao noi soi – ${pName}</title>
 <style>
-  @page { size: A4 portrait; margin: 1.5cm 1.8cm; }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 10pt;
-    color: #111;
-    background: white;
-    line-height: 1.5;
-    width: 620px;
-    max-width: 620px;
-    overflow: hidden;
-  }
+      @page { size: A4 portrait; margin: 1.5cm 1.8cm; }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 10pt;
+        color: #111;
+        background: white;
+        line-height: 1.5;
+        width: 620px;
+        max-width: 620px;
+        overflow: hidden;
+      }
 
-  /* INFO */
-  .info-table { width: 100%; border-collapse: collapse; margin-bottom: 60px; border: 1px solid #bbb; }
-  .info-table td { padding: 5px 10px; border: 1px solid #bbb; font-size: 9.5pt; }
-  .info-table .lbl { color: #555; font-size: 8pt; display: block; }
-  .info-table .val { font-weight: bold; color: #000; }
+      /* INFO */
+      .info-table { width: 100%; border-collapse: collapse; margin-bottom: 60px; border: 1px solid #bbb; }
+      .info-table td { padding: 5px 10px; border: 1px solid #bbb; font-size: 9.5pt; }
+      .info-table .lbl { color: #555; font-size: 8pt; display: block; }
+      .info-table .val { font-weight: bold; color: #000; }
 
-  /* MAIN TABLE: ảnh trái, text phải */
-  .main-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-  .col-img { width: 40%; vertical-align: top; padding-right: 12px; }
-  .col-txt { width: 60%; vertical-align: top; word-wrap: break-word; overflow: hidden; }
+      /* MAIN TABLE: ảnh trái, text phải */
+      .main-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+      .col-img { width: 40%; vertical-align: top; padding-right: 12px; }
+      .col-txt { width: 60%; vertical-align: top; word-wrap: break-word; overflow: hidden; }
 
-  /* ẢNH */
-  .img-wrap {
-    border: 1px solid #ccc;
-    background: #f5f5f5;
-    width: 100%;
-    overflow: hidden;
-  }
+      /* ẢNH */
+      .img-wrap {
+        border: 1px solid #ccc;
+        background: #f5f5f5;
+        width: 100%;
+        overflow: hidden;
+      }
 
-  /* CÁC BƯỚC PHẪU THUẬT */
-  .steps { list-style: none; padding: 0; margin: 0; width: 100%; }
-  .steps li {
-    display: table;
-    width: 100%;
-    padding: 5px 0;
-    border-bottom: 1px solid #eee;
-    font-size: 9.5pt;
-    line-height: 1.5;
-  }
-  .steps li:last-child { border-bottom: none; }
-  .step-num {
-    display: table-cell;
-    font-weight: bold;
-    color: #0f1f3d;
-    white-space: nowrap;
-    padding-right: 6px;
-    vertical-align: top;
-    width: 20px;
-  }
-  .step-body {
-    display: table-cell;
-    vertical-align: top;
-    word-break: break-word;
-  }
-  .step-final {
-    margin-top: 10px;
-    font-weight: bold;
-    font-size: 9.5pt;
-    border-top: 2px solid #0f1f3d;
-    padding-top: 6px;
-  }
+      /* CÁC BƯỚC PHẪU THUẬT */
+      .steps { list-style: none; padding: 0; margin: 0; width: 100%; }
+      .steps li {
+        display: table;
+        width: 100%;
+        padding: 5px 0;
+        border-bottom: 1px solid #eee;
+        font-size: 9.5pt;
+        line-height: 1.5;
+      }
+      .steps li:last-child { border-bottom: none; }
+      .step-num {
+        display: table-cell;
+        font-weight: bold;
+        color: #0f1f3d;
+        white-space: nowrap;
+        padding-right: 6px;
+        vertical-align: top;
+        width: 20px;
+      }
+      .step-body {
+        display: table-cell;
+        vertical-align: top;
+        word-break: break-word;
+      }
+      .step-final {
+        margin-top: 10px;
+        font-weight: bold;
+        font-size: 9.5pt;
+        border-top: 2px solid #0f1f3d;
+        padding-top: 6px;
+      }
 </style>
 </head>
 <body>
 
-  <!-- THÔNG TIN BỆNH NHÂN -->
-  <table class="info-table">
-    <tr>
-      <td style="width:45%">
-        <span class="lbl">H&#7885; t&ecirc;n b&#7879;nh nh&acirc;n</span>
-        <span class="val">${pName.toUpperCase()}</span>
-      </td>
-      <td style="width:25%">
-        <span class="lbl">Ng&agrave;y n&#7897;i soi</span>
-        <span class="val">${pDate.split('-')[2] + '/' + pDate.split('-')[1] + '/' + pDate.split('-')[0]}</span>
-      </td>
-      <td>
-        <span class="lbl">B&aacute;c s&#297; th&#7921;c hi&#7879;n</span>
-        <span class="val">${pDoc}</span>
-      </td>
-    </tr>
-  </table>
+      <!-- THÔNG TIN BỆNH NHÂN -->
+      <table class="info-table">
+        <tr>
+          <td style="width:45%">
+            <span class="lbl">H&#7885; t&ecirc;n b&#7879;nh nh&acirc;n</span>
+            <span class="val">${pName.toUpperCase()}</span>
+          </td>
+          <td style="width:25%">
+            <span class="lbl">Ng&agrave;y n&#7897;i soi</span>
+            <span class="val">${pDate.split('-')[2] + '/' + pDate.split('-')[1] + '/' + pDate.split('-')[0]}</span>
+          </td>
+          <td>
+            <span class="lbl">B&aacute;c s&#297; th&#7921;c hi&#7879;n</span>
+            <span class="val">${pDoc}</span>
+          </td>
+        </tr>
+      </table>
 
-  <!-- ẢNH TRÁI + NỘI DUNG PHẢI -->
-  <table class="main-table">
-    <tr>
-      <!-- CỘT TRÁI: ẢNH -->
-      <td class="col-img">
-        <div class="img-wrap">${imgHtml}</div>
-      </td>
+      <!-- ẢNH TRÁI + NỘI DUNG PHẢI -->
+      <table class="main-table">
+        <tr>
+          <!-- CỘT TRÁI: ẢNH -->
+          <td class="col-img">
+            <div class="img-wrap">${imgHtml}</div>
+          </td>
 
-      <!-- CỘT PHẢI: 7 BƯỚC -->
-      <td class="col-txt">
-        <ol class="steps">
-          <li>
-            <span class="step-num">1.</span>
-            <span class="step-body">D&#7909;ng d&#7909;ng c&#7909; n&#7897;i soi chuy&ecirc;n d&#7909;ng b&#7897;c l&#7897; c&aacute;c v&ugrave;ng c&#7847;n ki&#7875;m tra: <strong>M&#361;i h&#7885;ng (Nasopharynx), Khoang mi&#7879;ng (Oral Cavity), H&#7847;u h&#7885;ng (Oropharynx), Thanh qu&#7843;n (Larynx), H&#7841; h&#7885;ng (Hypopharynx), Mi&#7879;ng th&#7921;c qu&#7843;n (Esophageal Inlet), Kh&iacute; qu&#7843;n (Trachea).</strong></span>
-          </li>
-          <li>
-            <span class="step-num">2.</span>
-            <span class="step-body">${step2}</span>
-          </li>
-          ${step3 ? `<li><span class="step-num">3.</span><span class="step-body">${step3}</span></li>` : ''}
-          <li>
-            <span class="step-num">${lesions.length > 0 ? '4' : '3'}.</span>
-            <span class="step-body">${step4}</span>
-          </li>
-          <li>
-            <span class="step-num">${lesions.length > 0 ? '5' : '4'}.</span>
-            <span class="step-body">C&#7847;m m&aacute;u k&#7929; b&#7857;ng b&ocirc;ng t&#7849;m Adrenaline.</span>
-          </li>
-          <li>
-            <span class="step-num">${lesions.length > 0 ? '6' : '5'}.</span>
-            <span class="step-body">Ki&#7875;m tra l&#7841;i kh&ocirc;ng ch&#7843;y m&aacute;u.</span>
-          </li>
-          <li>
-            <span class="step-num">${lesions.length > 0 ? '7' : '6'}.</span>
-            <span class="step-body">Ng&#7915;ng soi.</span>
-          </li>
-        </ol>
-        <div class="step-final">K&#7871;t th&uacute;c ph&#7851;u thu&#7853;t an to&agrave;n.</div>
-      </td>
-    </tr>
-  </table>
+          <!-- CỘT PHẢI: 7 BƯỚC -->
+          <td class="col-txt">
+            <ol class="steps">
+              <li>
+                <span class="step-num">1.</span>
+                <span class="step-body">D&#7909;ng d&#7909;ng c&#7909; n&#7897;i soi chuy&ecirc;n d&#7909;ng b&#7897;c l&#7897; c&aacute;c v&ugrave;ng c&#7847;n ki&#7875;m tra: <strong>M&#361;i h&#7885;ng (Nasopharynx), Khoang mi&#7879;ng (Oral Cavity), H&#7847;u h&#7885;ng (Oropharynx), Thanh qu&#7843;n (Larynx), H&#7841; h&#7885;ng (Hypopharynx), Mi&#7879;ng th&#7921;c qu&#7843;n (Esophageal Inlet), Kh&iacute; qu&#7843;n (Trachea).</strong></span>
+              </li>
+              <li>
+                <span class="step-num">2.</span>
+                <span class="step-body">${step2}</span>
+              </li>
+              ${step3 ? `<li><span class="step-num">3.</span><span class="step-body">${step3}</span></li>` : ''}
+              <li>
+                <span class="step-num">${lesions.length > 0 ? '4' : '3'}.</span>
+                <span class="step-body">${step4}</span>
+              </li>
+              <li>
+                <span class="step-num">${lesions.length > 0 ? '5' : '4'}.</span>
+                <span class="step-body">C&#7847;m m&aacute;u k&#7929; b&#7857;ng b&ocirc;ng t&#7849;m Adrenaline.</span>
+              </li>
+              <li>
+                <span class="step-num">${lesions.length > 0 ? '6' : '5'}.</span>
+                <span class="step-body">Ki&#7875;m tra l&#7841;i kh&ocirc;ng ch&#7843;y m&aacute;u.</span>
+              </li>
+              <li>
+                <span class="step-num">${lesions.length > 0 ? '7' : '6'}.</span>
+                <span class="step-body">Ng&#7915;ng soi.</span>
+              </li>
+            </ol>
+            <div class="step-final">K&#7871;t th&uacute;c ph&#7851;u thu&#7853;t an to&agrave;n.</div>
+          </td>
+        </tr>
+      </table>
 
-  <!-- HƯỚNG XỬ TRÍ -->
-  <div style="margin-top:18px; border-top:2px solid #0f1f3d; padding-top:10px;">
-    <div style="font-size:8.5pt;font-weight:bold;text-transform:uppercase;letter-spacing:.7px;color:#0d9488;border-bottom:1.5px solid #0d9488;padding-bottom:3px;margin-bottom:8px;">H&#432;&#7899;ng x&#7917; tr&iacute;</div>
-    <div>${treatmentsStr}</div>
-  </div>
+      <!-- HƯỚNG XỬ TRÍ -->
+      <div style="margin-top:18px; border-top:2px solid #0f1f3d; padding-top:10px;">
+        <div style="font-size:8.5pt;font-weight:bold;text-transform:uppercase;letter-spacing:.7px;color:#0d9488;border-bottom:1.5px solid #0d9488;padding-bottom:3px;margin-bottom:8px;">H&#432;&#7899;ng x&#7917; tr&iacute;</div>
+        <div>${treatmentsStr}</div>
+      </div>
 
 </body>
 </html>`;
@@ -1070,5 +1073,20 @@
         <img id="modalImg" style="margin:auto; display:block; max-width:90%; max-height:90%; border:3px solid white; border-radius:4px; box-shadow: 0 0 20px rgba(0,0,0,0.5);">
     </div>
 
+    <script src="https://unpkg.com/pulltorefreshjs"></script>
+
+    <script>
+        const ptr = PullToRefresh.init({
+            mainElement: 'body', // Phần tử sẽ bị kéo
+            onRefresh() {
+                window.location.reload(); // Hành động khi kéo xong: Tải lại trang
+            },
+            distThreshold: 60, // Khoảng cách kéo tối thiểu (pixel) để kích hoạt
+            distMax: 80,       // Khoảng cách kéo tối đa
+            instructionsPullToRefresh: 'Kéo xuống để cập nhật',
+            instructionsReleaseToRefresh: 'Thả tay để tải lại',
+            instructionsRefreshing: 'Đang tải...'
+        });
+    </script>
 </body>
 </html>

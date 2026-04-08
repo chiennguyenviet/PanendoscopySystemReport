@@ -4,13 +4,25 @@
     <meta charset="UTF-8">
     <title>PanEndoscopy Reporting System</title>
     <script src="https://unpkg.com/html-docx-js/dist/html-docx.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
     <style>
+
+        #btnRefresh:hover {
+            color: #3b82f6;
+            transform: scale(1.1);
+        }
+
+        #btnRefresh:active {
+            transform: scale(0.9);
+        }
         /* Thêm vào phần style */
         .preview-img, #patientList img {
             cursor: pointer;
             touch-action: manipulation; /* Tối ưu cho màn hình cảm ứng */
             -webkit-tap-highlight-color: transparent; /* Bỏ khung xanh khi chạm trên iPhone */
         }
+
         :root {
             --navy: #0f1f3d;
             --teal: #0d9488;
@@ -361,7 +373,6 @@
             background: #ef4444;
             color: white;
         }
-
     </style>
 </head>
 <body>
@@ -372,7 +383,18 @@
         </div>
 
         <div id="sidebarContent" style="width: 300px; padding: 15px;">
-            <h3 style="color: #1e40af; margin-bottom: 12px; white-space: nowrap;">🔍 DANH SÁCH BỆNH NHÂN</h3>
+            <div id="sidebarHeader" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                <h3 id="sidebarTitle" style="color: #1e40af; margin: 0; white-space: nowrap; font-size: 16px;">🔍 DANH SÁCH BỆNH NHÂN</h3>
+
+                <button onclick="refreshData(this)" id="btnRefresh" title="Làm mới danh sách"
+                        style="background: none; border: none; cursor: pointer; color: #1e40af; display: flex; align-items: center; justify-content: center; transition: transform 0.3s ease;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M23 4v6h-6"></path>
+                        <path d="M1 20v-6h6"></path>
+                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                    </svg>
+                </button>
+            </div>
             <input type="text" id="searchInput" placeholder="Gõ tên..." style="width: 100%; padding: 10px;">
             <div id="patientList" style="margin-top:15px;">
             </div>
@@ -402,16 +424,18 @@
         <div class="preview-grid" id="pGrid"></div>
 
         <h2>📝 Kết luận & Xử trí</h2>
-        <input type="text" id="tStaging" class="f-input" placeholder="Kết luận sơ bộ" value="T2">
+        <input type="text" id="tStaging" class="f-input" placeholder="Kết luận sơ bộ" value="">
+
+        <h2>📝 Sinh thiết</h2>
 
 <textarea id="moreNotes" class="f-input" rows="6"
           style="resize: vertical; min-height: 50px; line-height: 1.5;"
-          placeholder="Ghi chú..."></textarea>
+          placeholder="Vị trí sinh thiết..."></textarea>
 
         <button class="btn btn-save" style="margin-bottom: 5px;" onclick="saveToGoogleSheet()">📊 LƯU DỮ LIỆU</button>
         <div class="btn-group">
-            <button class="btn btn-docx" onclick="exportDOCX()">📄 XUẤT DOCX</button>
-            <button class="btn btn-pdf" onclick="exportPDF()">📑 XUẤT PDF</button>
+            <button class="btn btn-docx" onclick="exportPDF()">📄 XUẤT PDF</button>
+            <button class="btn btn-pdf" onclick="printReport()">📑 In</button>
         </div>
         <button class="btn btn-clear" style="margin-top:5px" onclick="clearAll()">🔄 CA MỚI</button>
     </div>
@@ -744,7 +768,8 @@
 
             const tStaging = document.getElementById('tStaging').value || 'Chưa phân độ';
 
-            const moreNotes = document.getElementById('moreNotes').value || 'Theo dõi định kỳ';
+            const moreNotes = document.getElementById('moreNotes').value || '';
+            const biopsy = document.getElementById('moreNotes').value.trim() || '';
 
             let lesions = [];
 
@@ -753,8 +778,6 @@
                 lesions.push(cb.dataset.val.replace(/\*\*/g, ''));
 
             });
-
-
 
 
 
@@ -788,11 +811,176 @@
 
             }
 
+            // Bước 2: câu mô tả tổn thương
+            let step2, step3;
+            if (lesions.length > 0) {
+                step2 = `Quan s&aacute;t d&#432;&#7899;i k&iacute;nh hi&#7875;n vi th&#7845;y c&aacute;c v&#7883; tr&iacute; t&#7893;n th&#432;&#417;ng &#7903;: <strong>${lesions.join(', ')}</strong>.`;
+                step3 = `C&aacute;c v&#7883; tr&iacute; kh&aacute;c kh&ocirc;ng c&oacute; u.`;
+            } else {
+                step2 = `Quan s&aacute;t d&#432;&#7899;i k&iacute;nh hi&#7875;n vi kh&ocirc;ng th&#7845;y t&#7893;n th&#432;&#417;ng nghi ng&#7901; &#7903; c&aacute;c v&#7883; tr&iacute; quan s&aacute;t.`;
+                step3 = '';
+            }
 
+            // Bước 4: sinh thiết
+            const step4 = biopsy
+                ? `B&#7845;m sinh thi&#7871;t: ${biopsy}.`
+                : `B&#7845;m sinh thi&#7871;t: ..........................................`;
+
+           
+            const imgHtml = imageList.length > 0
+                ? `<img src="${imageList[0]}" style="width:100%;height:260px;object-fit:contain;display:block;">`
+                : `<div style="width:100%;height:260px;border:1px dashed #aaa;display:table-cell;vertical-align:middle;text-align:center;color:#aaa;font-style:italic;">Ch&#432;a c&oacute; &#7843;nh n&#7897;i soi</div>`;
+
+
+            /*
             return `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body { font-family: 'Times New Roman', serif; font-size: 12pt; margin: 1.5cm; line-height: 1.4; } .header { text-align: center; border-bottom: 2px solid #0d9488; padding-bottom: 10px; } .title { font-size: 18pt; font-weight: bold; } .info-table { width: 100%; border-collapse: collapse; margin: 15px 0; } .info-table td { padding: 8px; border: 1px solid #cbd5e1; } .section-title { background: #0f1f3d; color: white; padding: 6px 12px; margin: 20px 0 10px 0; font-weight: bold; } .conclusion-box { background: #fefce8; padding: 12px; border-left: 4px solid #eab308; }</style></head><body><div class="header"><div class="title">BÁO CÁO NỘI SOI</div></div><table class="info-table"><tr><td>HỌ TÊN</td><td><b>${pName.toUpperCase()}</b></td></tr><tr><td>NGÀY</td><td>${pDate.split('-')[2] + '/' + pDate.split('-')[1] + '/' + pDate.split('-')[0]}</td></tr><tr><td>BÁC SĨ</td><td>${pDoc}</td></tr></table><div class="section-title">📌 PHÁT HIỆN TỔN THƯƠNG</div><ul>${lesionsStr}</ul><div class="section-title">📝 KẾT LUẬN</div><div class="conclusion-box"><p>T: ${tStaging}</p><p>${treatmentsStr}</p></div><div class="section-title">🖼️ HÌNH ẢNH</div>${imagesHtml}</body></html>`;
+            */
 
+            return `<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Bao cao noi soi – ${pName}</title>
+<style>
+  @page { size: A4 portrait; margin: 1.5cm 1.8cm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10pt;
+    color: #111;
+    background: white;
+    line-height: 1.5;
+    width: 620px;
+    max-width: 620px;
+    overflow: hidden;
+  }
+
+  /* INFO */
+  .info-table { width: 100%; border-collapse: collapse; margin-bottom: 60px; border: 1px solid #bbb; }
+  .info-table td { padding: 5px 10px; border: 1px solid #bbb; font-size: 9.5pt; }
+  .info-table .lbl { color: #555; font-size: 8pt; display: block; }
+  .info-table .val { font-weight: bold; color: #000; }
+
+  /* MAIN TABLE: ảnh trái, text phải */
+  .main-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  .col-img { width: 40%; vertical-align: top; padding-right: 12px; }
+  .col-txt { width: 60%; vertical-align: top; word-wrap: break-word; overflow: hidden; }
+
+  /* ẢNH */
+  .img-wrap {
+    border: 1px solid #ccc;
+    background: #f5f5f5;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  /* CÁC BƯỚC PHẪU THUẬT */
+  .steps { list-style: none; padding: 0; margin: 0; width: 100%; }
+  .steps li {
+    display: table;
+    width: 100%;
+    padding: 5px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 9.5pt;
+    line-height: 1.5;
+  }
+  .steps li:last-child { border-bottom: none; }
+  .step-num {
+    display: table-cell;
+    font-weight: bold;
+    color: #0f1f3d;
+    white-space: nowrap;
+    padding-right: 6px;
+    vertical-align: top;
+    width: 20px;
+  }
+  .step-body {
+    display: table-cell;
+    vertical-align: top;
+    word-break: break-word;
+  }
+  .step-final {
+    margin-top: 10px;
+    font-weight: bold;
+    font-size: 9.5pt;
+    border-top: 2px solid #0f1f3d;
+    padding-top: 6px;
+  }
+</style>
+</head>
+<body>
+
+  <!-- THÔNG TIN BỆNH NHÂN -->
+  <table class="info-table">
+    <tr>
+      <td style="width:45%">
+        <span class="lbl">H&#7885; t&ecirc;n b&#7879;nh nh&acirc;n</span>
+        <span class="val">${pName.toUpperCase()}</span>
+      </td>
+      <td style="width:25%">
+        <span class="lbl">Ng&agrave;y n&#7897;i soi</span>
+        <span class="val">${pDate.split('-')[2] + '/' + pDate.split('-')[1] + '/' + pDate.split('-')[0]}</span>
+      </td>
+      <td>
+        <span class="lbl">B&aacute;c s&#297; th&#7921;c hi&#7879;n</span>
+        <span class="val">${pDoc}</span>
+      </td>
+    </tr>
+  </table>
+
+  <!-- ẢNH TRÁI + NỘI DUNG PHẢI -->
+  <table class="main-table">
+    <tr>
+      <!-- CỘT TRÁI: ẢNH -->
+      <td class="col-img">
+        <div class="img-wrap">${imgHtml}</div>
+      </td>
+
+      <!-- CỘT PHẢI: 7 BƯỚC -->
+      <td class="col-txt">
+        <ol class="steps">
+          <li>
+            <span class="step-num">1.</span>
+            <span class="step-body">D&#7909;ng d&#7909;ng c&#7909; n&#7897;i soi chuy&ecirc;n d&#7909;ng b&#7897;c l&#7897; c&aacute;c v&ugrave;ng c&#7847;n ki&#7875;m tra: <strong>M&#361;i h&#7885;ng (Nasopharynx), Khoang mi&#7879;ng (Oral Cavity), H&#7847;u h&#7885;ng (Oropharynx), Thanh qu&#7843;n (Larynx), H&#7841; h&#7885;ng (Hypopharynx), Mi&#7879;ng th&#7921;c qu&#7843;n (Esophageal Inlet), Kh&iacute; qu&#7843;n (Trachea).</strong></span>
+          </li>
+          <li>
+            <span class="step-num">2.</span>
+            <span class="step-body">${step2}</span>
+          </li>
+          ${step3 ? `<li><span class="step-num">3.</span><span class="step-body">${step3}</span></li>` : ''}
+          <li>
+            <span class="step-num">${lesions.length > 0 ? '4' : '3'}.</span>
+            <span class="step-body">${step4}</span>
+          </li>
+          <li>
+            <span class="step-num">${lesions.length > 0 ? '5' : '4'}.</span>
+            <span class="step-body">C&#7847;m m&aacute;u k&#7929; b&#7857;ng b&ocirc;ng t&#7849;m Adrenaline.</span>
+          </li>
+          <li>
+            <span class="step-num">${lesions.length > 0 ? '6' : '5'}.</span>
+            <span class="step-body">Ki&#7875;m tra l&#7841;i kh&ocirc;ng ch&#7843;y m&aacute;u.</span>
+          </li>
+          <li>
+            <span class="step-num">${lesions.length > 0 ? '7' : '6'}.</span>
+            <span class="step-body">Ng&#7915;ng soi.</span>
+          </li>
+        </ol>
+        <div class="step-final">K&#7871;t th&uacute;c ph&#7851;u thu&#7853;t an to&agrave;n.</div>
+      </td>
+    </tr>
+  </table>
+
+  <!-- HƯỚNG XỬ TRÍ -->
+  <div style="margin-top:18px; border-top:2px solid #0f1f3d; padding-top:10px;">
+    <div style="font-size:8.5pt;font-weight:bold;text-transform:uppercase;letter-spacing:.7px;color:#0d9488;border-bottom:1.5px solid #0d9488;padding-bottom:3px;margin-bottom:8px;">H&#432;&#7899;ng x&#7917; tr&iacute;</div>
+    <div>${treatmentsStr}</div>
+  </div>
+
+</body>
+</html>`;
         }
 
+        /*
         function exportDOCX() {
 
             const htmlContent = getReportHTML();
@@ -812,23 +1000,65 @@
             } catch (e) { alert('Lỗi xuất DOCX'); }
 
         }
-
+        */
 
 
         function exportPDF() {
-
             const htmlContent = getReportHTML();
+            const el = document.createElement('div');
+            el.innerHTML = htmlContent;
+            // Lấy phần body của report
+            const body = el.querySelector('body') || el;
 
-            const printWindow = window.open('', '_blank');
+            const pName = document.getElementById('pName').value || 'BN';
+            const opt = {
+                margin: [18, 20, 18, 20],   // top, right, bottom, left (mm)
+                filename: `BaoCao_NoiSoi_${pName}.pdf`,
+                image: { type: 'jpeg', quality: 0.97 },
+                html2canvas: { scale: 2, useCORS: true, logging: false },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak: { mode: 'avoid-all' }
+            };
 
-            printWindow.document.write(htmlContent);
+            // Tạo container tạm với đúng font + kích thước A4
+            const wrapper = document.createElement('div');
+            wrapper.style.cssText = 'width:620px;max-width:620px;overflow:hidden;font-family:Arial,sans-serif;';
+            wrapper.innerHTML = body.innerHTML;
+            document.body.appendChild(wrapper);
 
-            printWindow.document.close();
-
-            printWindow.print();
-
+            html2pdf().set(opt).from(wrapper).save().then(() => {
+                document.body.removeChild(wrapper);
+            });
         }
 
+        function printReport() {
+            const htmlContent = getReportHTML();
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(htmlContent);
+            printWindow.document.close();
+            setTimeout(() => printWindow.print(), 600);
+        }
+
+
+        async function refreshData(btn) {
+            // Hiệu ứng xoay icon khi bấm
+            btn.style.transform = "rotate(360deg)";
+
+            // Hiển thị trạng thái đang tải trong danh sách
+            const listContainer = document.getElementById('patientList');
+            listContainer.innerHTML = '<p style="color: #666; text-align: center; font-size: 13px;">🔄 Đang cập nhật...</p>';
+
+            // Gọi lại hàm lấy dữ liệu đã có của bạn
+            try {
+                await fetchPatients();
+                console.log("Đã cập nhật danh sách mới nhất.");
+            } catch (e) {
+                console.error("Lỗi khi refresh:", e);
+            } finally {
+                // Reset lại vòng xoay sau khi xong
+                setTimeout(() => { btn.style.transform = "rotate(0deg)"; }, 500);
+            }
+        }
 
 
         window.onload = () => { render(); fetchPatients(); };

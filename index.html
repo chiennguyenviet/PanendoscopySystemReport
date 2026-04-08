@@ -817,8 +817,8 @@
 
             // Bước 2: câu mô tả tổn thương
             let step2, step3;
-            if (lesions.length > 0) {
-                step2 = `Quan s&aacute;t d&#432;&#7899;i k&iacute;nh hi&#7875;n vi th&#7845;y c&aacute;c v&#7883; tr&iacute; t&#7893;n th&#432;&#417;ng &#7903;: <strong>${lesions.join(', ')}</strong>.`;
+            if (lesionsList.length > 0) {
+                step2 = `Quan s&aacute;t d&#432;&#7899;i k&iacute;nh hi&#7875;n vi th&#7845;y c&aacute;c v&#7883; tr&iacute; t&#7893;n th&#432;&#417;ng &#7903;: <strong>${lesionsList.join(', ')}</strong>.`;
                 step3 = `C&aacute;c v&#7883; tr&iacute; kh&aacute;c kh&ocirc;ng c&oacute; u.`;
             } else {
                 step2 = `Quan s&aacute;t d&#432;&#7899;i k&iacute;nh hi&#7875;n vi kh&ocirc;ng th&#7845;y t&#7893;n th&#432;&#417;ng nghi ng&#7901; &#7903; c&aacute;c v&#7883; tr&iacute; quan s&aacute;t.`;
@@ -953,19 +953,19 @@
           </li>
           ${step3 ? `<li><span class="step-num">3.</span><span class="step-body">${step3}</span></li>` : ''}
           <li>
-            <span class="step-num">${lesions.length > 0 ? '4' : '3'}.</span>
+            <span class="step-num">${lesionsList.length > 0 ? '4' : '3'}.</span>
             <span class="step-body">${step4}</span>
           </li>
           <li>
-            <span class="step-num">${lesions.length > 0 ? '5' : '4'}.</span>
+            <span class="step-num">${lesionsList.length > 0 ? '5' : '4'}.</span>
             <span class="step-body">C&#7847;m m&aacute;u k&#7929; b&#7857;ng b&ocirc;ng t&#7849;m Adrenaline.</span>
           </li>
           <li>
-            <span class="step-num">${lesions.length > 0 ? '6' : '5'}.</span>
+            <span class="step-num">${lesionsList.length > 0 ? '6' : '5'}.</span>
             <span class="step-body">Ki&#7875;m tra l&#7841;i kh&ocirc;ng ch&#7843;y m&aacute;u.</span>
           </li>
           <li>
-            <span class="step-num">${lesions.length > 0 ? '7' : '6'}.</span>
+            <span class="step-num">${lesionsList.length > 0 ? '7' : '6'}.</span>
             <span class="step-body">Ng&#7915;ng soi.</span>
           </li>
         </ol>

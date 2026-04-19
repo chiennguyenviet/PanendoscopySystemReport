@@ -8,6 +8,110 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     <style>
+        /* Container chính của mỗi bệnh nhân */
+        .patient-item {
+            padding: 10px;
+            margin: 6px 10px;
+            border-radius: 10px;
+            background: #f0f9ff; /* Màu xanh nhạt */
+            border: 1px solid #e0f2fe;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+            .patient-item:hover {
+                background: #e0f2fe;
+                border-color: #bae6fd;
+                transform: translateX(5px);
+            }
+
+        /* Khung chứa ảnh thumbnail */
+        .thumb-container {
+            position: relative;
+            width: 45px;
+            height: 45px;
+            flex-shrink: 0;
+        }
+
+        .patient-thumb {
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Biểu tượng nhỏ đè lên góc ảnh (tùy chọn) */
+        .status-icon {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            background: #3b82f6;
+            color: white;
+            font-size: 8px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid white;
+        }
+
+
+        /* Cấu hình nút xóa */
+        .btn-delete-patient {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #fee2e2;
+            color: #ef4444;
+            border: 1px solid #fca5a5;
+            width: 26px;
+            height: 26px;
+            border-radius: 4px;
+            display: none; /* Mặc định ẩn */
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        /* Nút sửa nằm bên cạnh (cách mép phải 42px) */
+        .btn-edit-patient {
+            position: absolute;
+            right: 42px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #e0f2fe;
+            color: #0369a1;
+            border: 1px solid #7dd3fc;
+            width: 26px;
+            height: 26px;
+            border-radius: 4px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        /* Hiện cả 2 nút khi di chuột vào hàng bệnh nhân */
+        #patientList > div:hover .btn-delete-patient,
+        #patientList > div:hover .btn-edit-patient {
+            display: flex !important;
+        }
+       
+
         .header-fixed {
             position: sticky;
             top: 0; /* Dính sát mép trên */
@@ -406,27 +510,7 @@
             position: relative; /* Để nút xóa căn theo hàng này */
         }
 
-        /* Cấu hình nút xóa */
-        .btn-delete-patient {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: #fee2e2;
-            color: #ef4444;
-            border: 1px solid #fca5a5;
-            width: 26px;
-            height: 26px;
-            border-radius: 4px;
-            display: none; /* Mặc định ẩn */
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            z-index: 10;
-        }
-
+      
         /* Hiện nút xóa khi di chuột vào hàng */
         #patientList > div:hover .btn-delete-patient {
             display: flex !important;
@@ -447,8 +531,9 @@
 
         <div id="sidebarContent" style="width: 300px; padding: 15px; display: flex; flex-direction: column; height: 100vh; box-sizing: border-box;">
 
-            <h3 style="margin-top: 0;">DANH SÁCH BỆNH NHÂN</h3>
-
+            <h3 style="font-size: 18px; color: #1e40af; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">
+                <span>📋</span> DANH SÁCH BỆNH NHÂN
+            </h3>
             <div style="display: flex; gap: 5px; margin-bottom: 12px;">
                 <input type="text" id="searchInput" placeholder="Gõ tên tìm kiếm..." style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
                 <button onclick="refreshData(this)" id="btnRefresh" title="Làm mới"
@@ -499,7 +584,7 @@
         <h2>📝 Kết luận & Xử trí</h2>
         <input type="text" id="tStaging" class="f-input" placeholder="Kết luận sơ bộ" value="">
 
-        <button class="btn btn-save" style="margin-bottom: 5px;" onclick="saveToGoogleSheet()">📊 LƯU DỮ LIỆU</button>
+        <button id="btnSave" class="btn btn-save" style="margin-bottom: 5px;" onclick="saveToGoogleSheet()">📊 LƯU DỮ LIỆU</button>
         <div class="btn-group">
             <button class="btn btn-docx" onclick="exportPDF()">📄 XUẤT PDF</button>
             <button class="btn btn-pdf" onclick="printReport()">📑 In</button>
@@ -508,6 +593,7 @@
     </div>
 
     <script>
+        let currentEditId = null; // null là thêm mới, có giá trị là đang sửa
 
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
@@ -582,7 +668,7 @@
 
         // --- GOOGLE SHEET SAVE ---
         async function saveToGoogleSheet() {
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbxGPJChz0xwwzF4o0cmKi_7tIAxHwQsxUbcZ0dgLhywfAoH-FIZMxamWmJYRNtZFMX-/exec';
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbxuZq8Ip2pylkF-areHXGBc2HHdrHSNhOo8EotN7gFvmsYeYz-8Cd5zHxp9Ewjdd0Q5/exec';
             const cloudName = 'dposxlu8h';
             const uploadPreset = 'unsigned_preset';
             const pName = document.getElementById('pName').value;
@@ -620,8 +706,15 @@
                 const treatmentOptions = SECTIONS.treat.items;
                 const treatmentsList = allChecked.filter(item => treatmentOptions.includes(item));
                 const lesionsList = allChecked.filter(item => !treatmentOptions.includes(item));
+                // Lấy danh sách link ảnh hiện có từ các thẻ <img> trong vùng preview
+                const currentImages = [];
+                document.querySelectorAll('.img-item img').forEach(img => {
+                    currentImages.push(img.src);
+                });
 
                 const reportData = {
+                    action: currentEditId ? 'update' : 'create', // Thêm flag này
+                    originalId: currentEditId, // ID để tìm dòng cũ (nếu sửa)
                     pName: pName,
                     pDate: document.getElementById('pDate').value,
                     pDoc: document.getElementById('pDoc').value,
@@ -630,10 +723,14 @@
                     lesions: lesionsList,
                     treatments: treatmentsList,
                     images: uploadedUrls // Lưu ý: Cloudinary logic nên giữ như cũ của bạn nếu cần
+                    //images: currentImages // Gửi mảng ảnh hiện tại (đã bao gồm ảnh mới và cũ)
                 };
 
                 await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(reportData) });
                 alert("✅ ĐÃ LƯU THÀNH CÔNG!");
+                setControlsLock(true); // Khóa lại sau khi lưu
+                currentEditId = null;
+                refreshData(this);
             } catch (e) { alert("❌ LỖI: " + e.message); }
             finally { btn.disabled = false; btn.innerHTML = "📊 LƯU DỮ LIỆU"; }
         }
@@ -641,7 +738,7 @@
         // --- FETCH PATIENTS ---
         async function fetchPatients() {
             const listContainer = document.getElementById('patientList');
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbxGPJChz0xwwzF4o0cmKi_7tIAxHwQsxUbcZ0dgLhywfAoH-FIZMxamWmJYRNtZFMX-/exec';
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbxuZq8Ip2pylkF-areHXGBc2HHdrHSNhOo8EotN7gFvmsYeYz-8Cd5zHxp9Ewjdd0Q5/exec';
             try {
                 const response = await fetch(scriptURL, { method: 'GET', redirect: 'follow' });
                 const patients = await response.json();
@@ -661,40 +758,59 @@
         }
 
         function displayPatients(list) {
+
             const listContainer = document.getElementById('patientList');
             listContainer.innerHTML = '';
+
             list.forEach(p => {
                 const item = document.createElement('div');
-                // Giữ nguyên style cũ của bạn nhưng thêm position relative
-                item.style.cssText = "padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: 0.2s; position: relative;";
+                item.className = "patient-item";
 
-                item.onmouseover = () => item.style.background = "#f0f7ff";
-                item.onmouseout = () => item.style.background = "transparent";
+                // Lấy ảnh đầu tiên làm thumbnail, nếu không có dùng ảnh placeholder
+                const thumbSrc = (p.images1 && p.images1 !== "") ? p.images1 : 'https://via.placeholder.com/45?text=BN';
 
-                const thumb = p.images1 || 'https://via.placeholder.com/40?text=BN';
-
-                // Thêm thẻ div .btn-delete-patient vào cuối innerHTML
-                // Tách chuỗi yyyy-mm-dd và đảo ngược lại
                 const dateParts = p.pDate.split("-");
                 const formattedDate = dateParts.length === 3 ? `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}` : p.pDate;
 
-                // Sau đó dùng biến formattedDate để hiển thị
-                // Tìm đoạn này và sửa lại thẻ img như sau:
                 item.innerHTML = `
-    <img src="${thumb}" 
-         onclick="event.stopPropagation(); openModal(this.src);" 
-         style="width:40px; height:40px; border-radius:4px; object-fit:cover; border:1px solid #ddd; flex-shrink:0; cursor:pointer;">
-    <div style="flex: 1; min-width: 0;">
-        <b style="color:#1e40af; font-size:13px; text-transform:uppercase; display:block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 25px;">${p.pName}</b>
-        <span style="font-size:11px; color:#64748b;">📅 ${formattedDate}</span>
-    </div>
-    <div class="btn-delete-patient" title="Xóa hồ sơ">✕</div>
-`;
+            <div class="thumb-container">
+                <img src="${thumbSrc}" class="patient-thumb" onclick="event.stopPropagation(); openModal(this.src);">
+                <div class="status-icon">👤</div>
+            </div>
+            <div style="flex: 1; min-width: 0;">
+                <b style="color:#1e40af; font-size:13px; text-transform:uppercase; display:block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 75px;">
+                    ${p.pName}
+                </b>
+                <span style="font-size:11px; color:#64748b; display: flex; align-items: center; gap: 4px;">
+                    📅 ${formattedDate}
+                </span>
+            </div>
+            <div class="btn-edit-patient" title="Sửa hồ sơ" style="right: 42px;">✏️</div>
+            <div class="btn-delete-patient" title="Xóa hồ sơ" style="right: 10px;">✕</div>
+        `;
+
+                // Sự kiện Click vào dòng để xem
+                item.onclick = (e) => {
+                    if (e.target.classList.contains('btn-delete-patient') || e.target.classList.contains('btn-edit-patient')) return;
+                    fillPatientData(p);
+                    setControlsLock(true);
+                };
+
+                // Sự kiện nút Sửa
+                item.querySelector('.btn-edit-patient').onclick = (e) => {
+                    e.stopPropagation();
+                    currentEditId = p.pName + p.pDate;
+                    fillPatientData(p);
+                    setControlsLock(false);
+                    alert("Chế độ sửa: " + p.pName);
+                };
 
                 // Click vào hàng thì đổ dữ liệu (trừ khi click trúng nút xóa)
+                // Tìm trong hàm displayPatients, đoạn cuối xử lý item.onclick
                 item.onclick = (e) => {
-                    if (e.target.classList.contains('btn-delete-patient')) return;
+                    if (e.target.classList.contains('btn-delete-patient') || e.target.classList.contains('btn-edit-patient')) return;
                     fillPatientData(p);
+                    setControlsLock(true); // <--- Thêm dòng này để chắc chắn là khóa khi chỉ xem
                 };
 
                 // Xử lý sự kiện nút xóa
@@ -726,7 +842,13 @@
                         }, 500);
                     }
                 };
-
+                // Click vào hàng để xem (vẫn để khóa)
+                // Tìm trong hàm displayPatients, đoạn cuối xử lý item.onclick
+                item.onclick = (e) => {
+                    if (e.target.classList.contains('btn-delete-patient') || e.target.classList.contains('btn-edit-patient')) return;
+                    fillPatientData(p);
+                    setControlsLock(true); // <--- Thêm dòng này để chắc chắn là khóa khi chỉ xem
+                };
                 listContainer.appendChild(item);
             });
         }
@@ -765,6 +887,7 @@
 
         function clearAll() {
             if (confirm('Bạn có chắc chắn muốn xóa sạch dữ liệu để làm ca mới?')) {
+                currentEditId = null; // Reset trạng thái về thêm mới
                 // 1. Xóa thông tin hành chính
                 document.getElementById('pName').value = '';
                 document.getElementById('pDate').value = '';
@@ -786,6 +909,8 @@
                 // Thông báo nhẹ hoặc cuộn lên đầu trang
                 document.getElementById('main-content').scrollTo({ top: 0, behavior: 'smooth' });
                 console.log("Đã làm mới form dữ liệu.");
+                setControlsLock(false); // Mở khóa để nhập ca mới
+                document.getElementById('pName').focus(); // Trỏ chuột vào ô tên cho tiện
             }
         }
         // EXPORT LOGIC (Giữ nguyên từ code của bạn)
@@ -1127,7 +1252,56 @@
             }
         }
 
-        window.onload = () => { render(); fetchPatients(); };
+        function setControlsLock(isLocked) {
+            // 1. Khóa/Mở các ô nhập liệu văn bản
+            const inputs = ['pName', 'pDate', 'pDoc', 'moreNotes', 'tStaging'];
+            inputs.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.disabled = isLocked;
+            });
+
+            // 2. Khóa/Mở nút Lưu và nút chọn file
+            const btnSave = document.getElementById('btnSave');
+            if (btnSave) btnSave.disabled = isLocked;
+
+            const fileUp = document.getElementById('fileUp');
+            if (fileUp) fileUp.disabled = isLocked;
+
+            // 3. Khóa/Mở toàn bộ các checkbox tổn thương
+            const checkboxes = document.querySelectorAll('.cl-cb');
+            checkboxes.forEach(cb => {
+                cb.disabled = isLocked;
+            });
+
+            // 4. Xử lý vùng upload ảnh (về mặt giao diện và tương tác)
+            const uploadZone = document.querySelector('.upload-zone');
+            if (uploadZone) {
+                if (isLocked) {
+                    uploadZone.style.pointerEvents = 'none';
+                    uploadZone.style.opacity = '0.5';
+                    uploadZone.style.background = '#f1f5f9';
+                } else {
+                    uploadZone.style.pointerEvents = 'auto';
+                    uploadZone.style.opacity = '1';
+                    uploadZone.style.background = '#f0fdfa';
+                }
+            }
+
+            // 5. Khóa các nút xóa ảnh (nếu có)
+            const delBtns = document.querySelectorAll('.del-img');
+            delBtns.forEach(btn => btn.style.display = isLocked ? 'none' : 'block');
+        }
+
+        // Cập nhật window.onload để khóa khi mới tải
+        window.onload = () => {
+            render();
+            fetchPatients();
+            setControlsLock(true); // Khóa lúc đầu
+        };
+
+        //window.onload = () => { render(); fetchPatients(); };
+
+
     </script>
 
     <div id="imageModal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.9); align-items:center; justify-content:center; cursor:zoom-out;" onclick="this.style.display='none'">
